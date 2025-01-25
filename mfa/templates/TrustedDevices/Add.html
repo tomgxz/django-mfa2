@@ -1,4 +1,4 @@
-{% extends "mfa_auth_base.html" %}
+{% extends "mfa_settings_base.html" %}
 {% block head %}
     <script type="application/javascript">
     function checkFlag() {
@@ -24,9 +24,7 @@
     $(document).ready(checkTrusted())
     </script>
 {% endblock %}
-{% block content %}
-    <br/>
-    <br/>
+{% block settings_content %}
 
 <div class="row">
 

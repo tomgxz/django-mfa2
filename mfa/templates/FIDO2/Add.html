@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "mfa_settings_base.html" %}
 {% load static %}
 {% block head %}
     <script type="application/javascript" src="{% static 'mfa/js/ua-parser.min.js'%}"></script>
@@ -70,9 +70,7 @@
     </script>
 
 {% endblock %}
-{% block content %}
-      <br/>
-    <br/>
+{% block settings_content %}
      <div class="container">
      <div class="panel panel-default card">
       <div class="panel-heading card-header">
