@@ -20,6 +20,7 @@ from .views import login
 from .Common import get_redirect_url
 from django.utils import timezone
 
+from .utils import render
 
 def recheck(request):
     context = csrf(request)
@@ -28,7 +29,7 @@ def recheck(request):
     request.session["_u2f_challenge_"] = s[0]
     context["token"] = s[1]
     request.session["mfa_recheck"] = True
-    return render(request, "U2F/recheck.html", context)
+    return render(request, "U2F/recheck.html", context, breadcrumbs=["u2f","u2f_recheck"], title="Authenticate U2F Key")
 
 
 def process_recheck(request):
@@ -98,7 +99,7 @@ def auth(request):
             "U2F", "Classical Security Key"
         )
     }
-    return render(request, "U2F/Auth.html", context)
+    return render(request, "U2F/Auth.html", context, breadcrumbs=None, title="Authenticate U2F Key")
 
 
 def start(request):
@@ -115,7 +116,7 @@ def start(request):
     context["RECOVERY_METHOD"] = getattr(settings, "MFA_RENAME_METHODS", {}).get(
         "RECOVERY", "Recovery codes"
     )
-    return render(request, "U2F/Add.html", context)
+    return render(request, "U2F/Add.html", context, breadcrumbs=["u2f","u2f_add"], title="Add New U2F Key")
 
 
 def bind(request):

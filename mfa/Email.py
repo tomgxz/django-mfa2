@@ -12,17 +12,20 @@ from .models import User_Keys
 from .views import login
 from .Common import send, get_username_field, set_next_recheck
 
+from django.shortcuts import render as default_render
+from .utils import render
+
 
 def sendEmail(request, username, secret):
     """Send Email to the user after rendering `mfa_email_token_template`"""
     User, UsernameField = get_username_field()
     kwargs = {UsernameField: username}
     user = User.objects.get(**kwargs)
-    res = render(
+    res = default_render(
         request,
         "mfa_email_token_template.html",
         {"request": request, "user": user, "otp": secret},
-    )
+    )    
     subject = getattr(settings, "MFA_OTP_EMAIL_SUBJECT", "OTP")
     if getattr(settings, "MFA_SHOW_OTP_IN_EMAIL_SUBJECT", False):
         if "%s" in subject:
@@ -75,7 +78,7 @@ def start(request):
 
         if sendEmail(request, request.user.username, request.session["email_secret"]):
             context["sent"] = True
-    return render(request, "Email/Add.html", context)
+    return render(request, "Email/Add.html", context, breadcrumbs=["email","email_start"], title="Add New Email Authentication")
 
 
 @never_cache
@@ -114,4 +117,5 @@ def auth(request):
             request, request.session["base_username"], request.session["email_secret"]
         ):
             context["sent"] = True
-    return render(request, "Email/Auth.html", context)
+    return render(request, "Email/Auth.html", context, breadcrumbs=None, title="Authenticate Email")
+

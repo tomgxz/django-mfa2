@@ -3,7 +3,6 @@ import datetime
 import time
 
 import pyotp
-from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
 from django.template.context_processors import csrf
@@ -12,6 +11,8 @@ from django.utils import timezone
 from .views import login
 from .Common import get_redirect_url, set_next_recheck
 from .models import User_Keys
+
+from .utils import render
 
 
 def verify_login(request, username, token):
@@ -35,7 +36,7 @@ def recheck(request):
             return JsonResponse({"recheck": True})
         else:
             return JsonResponse({"recheck": False})
-    return render(request, "TOTP/recheck.html", context)
+    return render(request, "TOTP/recheck.html", context, breadcrumbs=["totp","totp_recheck"], title="Authenticate Authenticator Code")
 
 
 @never_cache
@@ -54,7 +55,7 @@ def auth(request):
                 request.session["mfa"] = mfa
                 return login(request)
         context["invalid"] = True
-    return render(request, "TOTP/Auth.html", context)
+    return render(request, "TOTP/Auth.html", context, breadcrumbs=None, title="Authenticate Authenticator Code")
 
 
 def getToken(request):
@@ -110,4 +111,4 @@ def start(request):
     context["method"] = {
         "name": getattr(settings, "MFA_RENAME_METHODS", {}).get("TOTP", "Authenticator")
     }
-    return render(request, "TOTP/Add.html", context)
+    return render(request, "TOTP/Add.html", context, breadcrumbs=["totp","totp_add"], title="Add Authenticator App")

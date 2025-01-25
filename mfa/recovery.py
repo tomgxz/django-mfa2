@@ -3,7 +3,6 @@ import random
 import string
 
 
-from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from django.template.context_processors import csrf
 from django.utils import timezone
@@ -12,6 +11,8 @@ from django.http import HttpResponse, JsonResponse
 from django.conf import settings
 from .Common import get_redirect_url
 from .models import User_Keys
+
+from .utils import render
 
 USER_FRIENDLY_NAME = "Recovery Codes"
 
@@ -97,7 +98,7 @@ def recheck(request):
         else:
             return JsonResponse({"recheck": False})
 
-    return render(request, "RECOVERY/recheck.html", context)
+    return render(request, "RECOVERY/recheck.html", context, breadcrumbs=["recovery","recovery_recheck"], title="Authenticate Recovery Codes")
 
 
 @never_cache
@@ -125,7 +126,7 @@ def auth(request):
                 if resBackup[2]:
                     # If the last bakup code has just been used, we return a response insead of redirecting to login
                     context["lastBackup"] = True
-                    return render(request, "RECOVERY/Auth.html", context)
+                    return render(request, "RECOVERY/Auth.html", context, breadcrumbs=None, title="Authenticate Recovery Codes")
                 return login(request)
         context["invalid"] = True
 
@@ -134,7 +135,7 @@ def auth(request):
         if mfa and mfa["verified"] and mfa["lastBackup"]:
             return login(request)
 
-    return render(request, "RECOVERY/Auth.html", context)
+    return render(request, "RECOVERY/Auth.html", context, breadcrumbs=None, title="Authenticate Recovery Codes")
 
 
 @never_cache
@@ -143,4 +144,4 @@ def start(request):
     context = get_redirect_url()
     if "mfa_reg" in request.session:
         context["mfa_redirect"] = request.session["mfa_reg"]["name"]
-    return render(request, "RECOVERY/Add.html", context)
+    return render(request, "RECOVERY/Add.html", context, breadcrumbs=["recovery","recovery_add"], title="Add Recovery Codes")

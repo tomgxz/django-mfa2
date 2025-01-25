@@ -4,7 +4,6 @@ from fido2.server import Fido2Server, PublicKeyCredentialRpEntity
 from fido2.webauthn import RegistrationResponse
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render
 
 from django.http import HttpResponse
 from django.conf import settings
@@ -17,6 +16,8 @@ from .Common import get_redirect_url, set_next_recheck
 from django.utils import timezone
 import fido2.features
 from django.http import JsonResponse
+
+from .utils import render
 
 
 def enable_json_mapping():
@@ -31,7 +32,7 @@ def recheck(request):
     context = csrf(request)
     context["mode"] = "recheck"
     request.session["mfa_recheck"] = True
-    return render(request, "FIDO2/recheck.html", context)
+    return render(request, "FIDO2/recheck.html", context, breadcrumbs=["fido2","fido2_recheck"], title="Authenticate Passkey")
 
 
 def getServer():
@@ -143,7 +144,7 @@ def start(request):
     context["RECOVERY_METHOD"] = getattr(settings, "MFA_RENAME_METHODS", {}).get(
         "RECOVERY", "Recovery codes"
     )
-    return render(request, "FIDO2/Add.html", context)
+    return render(request, "FIDO2/Add.html", context, breadcrumbs=["fido2","fido2_add"], title="Add New Passkey")
 
 
 def getUserCredentials(username):
@@ -155,7 +156,7 @@ def getUserCredentials(username):
 
 def auth(request):
     context = csrf(request)
-    return render(request, "FIDO2/Auth.html", context)
+    return render(request, "FIDO2/Auth.html", context, breadcrumbs=None, title="Authenticate Passkey")
 
 
 def authenticate_begin(request):

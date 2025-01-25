@@ -1,6 +1,5 @@
 import importlib
 
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 
 
@@ -13,6 +12,7 @@ from django.conf import settings
 from user_agents import parse
 from . import TrustedDevice
 from .models import User_Keys
+from .utils import render
 
 
 @login_required
@@ -41,7 +41,7 @@ def index(request):
 
         keys.append(k)
     context["keys"] = keys
-    return render(request, "MFA.html", context)
+    return render(request, "MFA.html", context, breadcrumbs=[], title="Security Settings")
 
 
 def verify(request, username):
@@ -69,15 +69,12 @@ def verify(request, username):
 
 
 def show_methods(request):
-    return render(
-        request,
-        "select_mfa_method.html",
-        {"RENAME_METHODS": getattr(settings, "MFA_RENAME_METHODS", {})},
-    )
+    context = {"RENAME_METHODS": getattr(settings, "MFA_RENAME_METHODS", {})}
+    return render(request, "select_mfa_method.html", context, breadcrumbs=None, title="Authenticate")
 
 
 def reset_cookie(request):
-    response = HttpResponseRedirect(settings.LOGIN_URL)
+    response = HttpResponseRedirect(reverse(settings.LOGIN_URL))
     response.delete_cookie("base_username")
     return response
 

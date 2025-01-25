@@ -1,7 +1,7 @@
 import string
 import random
 from datetime import datetime, timedelta
-from django.shortcuts import render
+from django.shortcuts import render as default_render
 from django.http import HttpResponse
 from django.template.context_processors import csrf
 import user_agents
@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.urls import reverse
 
 from .models import User_Keys
+from .utils import render
 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -24,7 +25,7 @@ def getUserAgent(request):
         tk = User_Keys.objects.get(id=device_id)
         if tk.properties.get("user_agent", "") != "":
             ua = user_agents.parse(tk.properties["user_agent"])
-            res = render(None, "TrustedDevices/user-agent.html", context={"ua": ua})
+            res = default_render(None, "TrustedDevices/user-agent.html", context={"ua": ua})
             return HttpResponse(res)
     return HttpResponse("No Device provide", status=401)
 
@@ -55,7 +56,7 @@ def getCookie(request):
 
     if tk.properties["status"] == "trusted":
         context = {"added": True}
-        response = render(request, "TrustedDevices/Done.html", context)
+        response = render(request, "TrustedDevices/Done.html", context, breadcrumbs=["trusted_devices","trusted_devices_done"], title="Trusted Device Registered")
 
         expires = datetime.now() + timedelta(days=180)
         tk.expires = expires
@@ -70,7 +71,8 @@ def add(request):
         context.update(
             {"username": request.GET.get("u", ""), "key": request.GET.get("k", "")}
         )
-        return render(request, "TrustedDevices/Add.html", context)
+        return render(request, "TrustedDevices/Add.html", context, breadcrumbs=["trusted_devices","trusted_devices_add"], title="Add New Trusted Device")
+
     else:
         key = request.POST["key"].replace("-", "").replace(" ", "").upper()
         context["username"] = request.POST["username"]
@@ -99,7 +101,8 @@ def add(request):
                 "invalid"
             ] = "The username or key is wrong, please check and try again."
 
-        return render(request, "TrustedDevices/Add.html", context)
+        return render(request, "TrustedDevices/Add.html", context, breadcrumbs=["trusted_devices","trusted_devices_add"], title="Add Trusted Device")
+
 
 
 def start(request):
@@ -109,7 +112,7 @@ def start(request):
         ).count()
         >= 2
     ):
-        return render(request, "TrustedDevices/start.html", {"not_allowed": True})
+        return render(request, "TrustedDevices/start.html", {"not_allowed": True}, breadcrumbs=["trusted_devices","trusted_devices_start"], title="Add Trusted Device")
     td = None
     if not request.session.get("td_id", None):
         td = User_Keys()
@@ -131,11 +134,11 @@ def start(request):
     except:
         del request.session["td_id"]
         return start(request)
-    return render(request, "TrustedDevices/start.html", context)
+    return render(request, "TrustedDevices/start.html", context, breadcrumbs=["trusted_devices","trusted_devices_start"], title="Add Trusted Device")
 
 
 def send_email(request):
-    body = render(request, "TrustedDevices/email.html", {}).content
+    body = default_render(request, "TrustedDevices/email.html", {}).content
     from .Common import send
 
     e = request.user.email
