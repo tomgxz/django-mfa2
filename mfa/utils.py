@@ -56,4 +56,6 @@ def render(request,path,options={},*a,breadcrumbs=[],title="",**k):
         }
     }
     
+    options["settings_active_tab"] = "mfa"
+    
     return _render(request,path,options,*a,*k)

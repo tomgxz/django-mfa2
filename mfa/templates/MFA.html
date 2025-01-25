@@ -1,4 +1,4 @@
-{% extends "mfa_base.html" %}
+{% extends "mfa_auth_base.html" %}
 {% load static %}
 {% block head %}
 {{block.super}}
@@ -39,10 +39,7 @@
     <link href="{% static  'mfa/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
     <script src="{% static 'mfa/js/bootstrap-toggle.min.js'%}"></script>
 {% endblock %}
-{% block content %}
-{{block.super}}
-    <br/>
-    <br/>
+{% block auth_content %}
     <div class="container">
     <div class="row">
         <div class="offset-5 col-2" style="text-align: center">
